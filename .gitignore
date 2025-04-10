@@ -1,5 +1,6 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
+q3/__pycache__/
 *.py[cod]
 *$py.class
 
@@ -135,6 +136,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+ee655/
 
 # Spyder project settings
 .spyderproject
