@@ -1,122 +1,108 @@
-# Q3 – Classification with Circlization
+# Q3 - Classification with Circlization using Deep Learning
 
-## 📝 Task
-Train a Deep Learning network **from scratch** to perform:
-1. **Classification** of digits (0–9) from images.
-2. **Circlization**: Predict the **tightest enclosing circle** (center `x, y`, and `radius`) around the digit.
+## 📌 Objective
 
-Evaluate the model using the **IoU (Intersection over Union)** metric.
+Train a deep learning network **from scratch** to:
+- **Classify** digits (0–9) from the `MNIST_CircleMasks_Training` dataset.
+- **Predict tight bounding circles** around the digits for **localization** (circlization).
 
-> 🔔 If the classification is **incorrect**, assign **IoU = 0**.
+> The model is evaluated using **IoU (Intersection over Union)** on the predicted vs ground truth circles.
 
----
-
-## 📁 Folder Structure
-
-```
-q3/
-├── q3.py                  # Main training + evaluation script
-├── circle_dataset.py      # Custom Dataset loader for images + circle labels
-├── utils.py               # Circle IoU computation
-├── saved_models/          # Folder to store trained models
-│   └── model.pt
-```
+### ⚠️ Evaluation Rule:
+If the **classification is incorrect**, the **IoU score is considered zero**.
 
 ---
 
-## 📂 Dataset Dependencies
+## 📁 Dataset Structure
 
-This script depends on datasets generated in **Q1(b)**:
-- `../q1/q1b/MNIST_CircleMasks_Training/`
-- `../q1/q1b/MNIST_CircleMasks_Testing/`
+Uses the dataset from Q1(b), structured as:
 
-As well as raw images from:
-- `../MNIST_Dataset_JPG_format/MNIST_JPG_training/`
-- `../MNIST_Dataset_JPG_format/MNIST_JPG_testing/`
+```
+q1/q1b/
+├── MNIST_CircleMasks_Training/
+│   ├── 0/
+│   ├── 1/
+│   ├── ...
+│   └── 9/
+├── MNIST_CircleMasks_Testing/
+│   ├── 0/
+│   ├── 1/
+│   └── ...
+└── q1b.py
+```
 
-> ✅ Make sure this directory structure is correct before running.
+Each image file is a `28x28` grayscale image with a **digit** centered inside a **white circular mask** over black background.
 
 ---
 
-## 📦 Requirements
+## 🧠 Model Architecture
 
-Install dependencies:
-```bash
-pip install torch torchvision opencv-python numpy
-```
+- A **CNN** with:
+  - 3 convolutional layers with ReLU and MaxPooling
+  - 2 separate heads:
+    - `Classification Head`: Predicts the digit class (0–9).
+    - `Regression Head`: Predicts 3 values `(x_center, y_center, radius)` for the tight circle.
 
 ---
 
 ## 🚀 How to Run
 
-```bash
-cd q3
-python q3.py
-```
+1. Activate your virtual environment:
+   ```bash
+   source ee655/bin/activate
+   ```
 
-This will:
-- Train a CNN model from scratch on the dataset.
-- Predict class and circle parameters.
-- Evaluate using **IoU**, considering IoU = 0 for incorrect classifications.
-- Print the final **mean IoU score**.
-
----
-
-## 🧠 Model Details
-
-- CNN with two `Conv2D` + `ReLU` + `MaxPool` layers.
-- Two heads:
-  - **Classification head**: Outputs digit class (0–9).
-  - **Regression head**: Predicts normalized `(x_center, y_center, radius)` for the circle.
+2. Run the training script:
+   ```bash
+   python q3/train_and_evaluate.py
+   ```
 
 ---
 
-## 📊 Output Example
+## 🧪 Evaluation: IoU Metric
 
-Epoch 10: Loss = 84.7689  
-Mean IoU over test set: 0.0778
+After training, the model is evaluated on the test set using the **IoU metric** between:
+- Predicted circle `(x, y, r)`
+- Ground truth circle
 
-### Full Output:
+If the classification is wrong, the IoU is automatically set to `0.0`.
 
+Output:
 ```bash
-Epoch 1: Loss = 334.4422
-Epoch 2: Loss = 142.1294
-Epoch 3: Loss = 120.3470
-Epoch 4: Loss = 110.5330
-Epoch 5: Loss = 102.8760
-Epoch 6: Loss = 97.6974
-Epoch 7: Loss = 93.9095
-Epoch 8: Loss = 89.5419
-Epoch 9: Loss = 85.9460
-Epoch 10: Loss = 84.7689
+Epoch 1: Loss = 162.4205
+Epoch 2: Loss = 48.5278
+Epoch 3: Loss = 33.3905
+Epoch 4: Loss = 23.5051
+Epoch 5: Loss = 20.5727
+Epoch 6: Loss = 14.8037
+Epoch 7: Loss = 12.4969
+Epoch 8: Loss = 9.8469
+Epoch 9: Loss = 9.3188
+Epoch 10: Loss = 6.9169
 
-Mean IoU over test set: 0.0778
+📊 Mean IoU on Test Set: 0.9698
 ```
 
 ---
 
-## 🧪 Evaluation Criteria
+## 📊 Dependencies
 
-- **Classification Accuracy** is not reported directly.
-- **IoU Metric** is computed only if classification is correct.
-- Otherwise, **IoU is 0** (as per question instructions).
-
----
-
-## 🧰 Extra Utilities
-
-- `utils.py`: Contains `circle_iou()` to compute IoU between two circles.
-- `saved_models/model.pt`: Stores the best model trained.
+Install dependencies (inside virtual env):
+```bash
+pip install opencv-python numpy torch torchvision matplotlib
+```
 
 ---
 
-## 📌 Note
+## 📂 Files
 
-All circle coordinates and radii are **normalized** to `[0, 1]` during training for stability. They are automatically scaled back for IoU computation.
+- `train_and_evaluate.py`: Main script for training and evaluation.
+- `README.md`: You are here.
 
 ---
 
-## 👩‍💻 Author
+## ✅ Notes
 
-Assignment solution for Q3 – Deep Learning Classification with Circlization (2 marks)
-By [Tanvi Pooranmal Meena](https://github.com/tanvincible/)
+- Ground truth circles were generated using `cv2.minEnclosingCircle` in Q1(b).
+- All classification and localization is done using a **single network** with two outputs.
+- Designed for reproducibility and compliance with assignment instructions.
